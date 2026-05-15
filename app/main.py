@@ -1,30 +1,12 @@
-from app.db.db import SessionLocal
-from app.db import crud
+from fastapi import FastAPI
+from app.api import books, categories
 
-def main():
-    db = SessionLocal()
-    
-    print("=" * 50)
-    print("КНИЖНЫЙ МАГАЗИН")
-    print("=" * 50)
-    
-    # Получаем все категории
-    categories = crud.get_categories(db)
-    
-    for category in categories:
-        print(f"\n📚 Категория: {category.title}")
-        print("-" * 30)
-        
-        # Получаем книги в этой категории
-        books = crud.get_books_by_category(db, category.id)
-        
-        for book in books:
-            print(f"   📖 {book.title}")
-            print(f"      Описание: {book.description}")
-            print(f"      Цена: {book.price} руб.")
-            print()
-    
-    db.close()
+app = FastAPI(title="Book API", description="API для управления книгами и категориями")
 
-if __name__ == "__main__":
-    main()
+# Подключаем роутеры
+app.include_router(books.router)
+app.include_router(categories.router)
+
+@app.get("/health")
+def health_check():
+    return {"status": "ok", "message": "API is running"}
